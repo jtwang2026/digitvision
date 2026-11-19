@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><link rel="icon" type="image/svg+xml" href="/digitvision/favicon.svg">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0B1020">
+  <meta name="description" content="DigitVision 离线卷积实验：逐步观察真实的互相关计算。">
+  <title>Convolution Playground · DigitVision</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="DigitVision playground home"><span class="brand-mark">DV</span><strong>DigitVision</strong><span class="brand-divider"></span><span class="brand-section">INTERACTIVE LAB</span></a>
+    <span class="offline"><i></i> Runs locally · No server</span>
+  </header>
+  <main>
+    <section class="hero">
+      <div><p class="eyebrow">EXPERIMENT 04 <span> / </span> UNDERSTAND THE OPERATION</p><h1>Convolution <span>Playground</span><span class="title-dot">.</span></h1><p class="subtitle">让卷积的每一步，都看得见。编辑权重，滑动窗口，观察数字如何变成特征。</p></div>
+      <div class="operation-tag"><span>×</span><div><strong>Cross-correlation</strong><small>与 PyTorch Conv2d 一致 · 不翻转卷积核</small></div></div>
+    </section>
+
+    <section class="parameter-bar" aria-label="Convolution parameters">
+      <div class="parameter"><label for="stride">STRIDE</label><select id="stride"><option value="1">1</option><option value="2">2</option></select></div>
+      <div class="parameter"><label for="padding">PADDING</label><select id="padding"><option value="0">0 · Valid</option><option value="1">1 · Zero pad</option></select></div>
+      <div class="parameter fixed"><span>KERNEL SIZE</span><strong>3 × 3</strong></div>
+      <div class="shape-equation"><span>INPUT</span><strong>5 × 5</strong><b>→</b><span>OUTPUT</span><strong id="output-shape">3 × 3</strong></div>
+      <span id="state-badge" class="state-badge" data-state="IDLE">IDLE</span>
+    </section>
+
+    <section class="workspace" aria-label="Convolution workspace">
+      <article class="card input-card">
+        <div class="card-heading"><div><span class="section-number blue">01</span><h2>Input Matrix</h2></div><span class="dimension blue" id="input-shape">5 × 5</span></div>
+        <p class="card-caption">蓝色是输入，青色窗口是当前感受野。</p>
+        <div class="matrix-stage"><div id="input-grid" class="matrix input-grid" role="grid" aria-label="Padded input matrix"></div></div>
+        <div class="card-footer"><span><i class="legend-dot blue-bg"></i>Input data</span><span><i class="legend-dot cyan-bg"></i>Active window</span><span id="padding-note">No padding</span></div>
+      </article>
+
+      <article class="card kernel-card">
+        <div class="card-heading"><div><span class="section-number purple">02</span><h2>Kernel Editor</h2></div><span class="dimension purple">3 × 3</span></div>
+        <p class="card-caption">切换预设，或直接输入你自己的权重。</p>
+        <label class="sr-only" for="preset">Kernel preset</label>
+        <select id="preset" class="preset"><option value="vertical">Vertical Edge</option><option value="horizontal">Horizontal Edge</option><option value="diagonal">Diagonal Edge</option><option value="custom">Custom</option></select>
+        <div id="kernel-grid" class="kernel-grid" aria-label="Editable kernel weights"></div>
+        <p class="kernel-hint"><span>↳</span> 每个权重都可编辑，支持小数。</p>
+        <p id="kernel-error" class="error" role="alert" hidden></p>
+        <div class="card-footer"><span><i class="legend-dot purple-bg"></i>Learn the filter</span><span id="preset-description">Left − right response</span></div>
+      </article>
+
+      <article class="card output-card">
+        <div class="card-heading"><div><span class="section-number green">03</span><h2>Output Feature Map</h2></div><span class="dimension green" id="output-dimension">3 × 3</span></div>
+        <p class="card-caption">每个输出值，都是九次乘法的一次求和。</p>
+        <div class="matrix-stage"><div id="output-grid" class="matrix output-grid" role="grid" aria-label="Output feature map"></div></div>
+        <div class="card-footer"><span><i class="legend-dot green-bg"></i>Computed values</span><span id="written-count">0 / 9 written</span></div>
+      </article>
+    </section>
+
+    <section class="transport" aria-label="Animation controls">
+      <div class="progress-line"><div id="progress-fill"></div></div>
+      <div class="transport-buttons">
+        <button id="play" class="button primary"><span aria-hidden="true">▶</span> Play</button>
+        <button id="pause" class="button" disabled><span aria-hidden="true">Ⅱ</span> Pause</button>
+        <span class="control-divider"></span>
+        <button id="previous" class="button" disabled><span aria-hidden="true">←</span> Previous Step</button>
+        <button id="next" class="button">Next Step <span aria-hidden="true">→</span></button>
+        <button id="restart" class="button ghost"><span aria-hidden="true">↺</span> Restart</button>
+      </div>
+      <div class="speed-control"><label for="speed">SPEED</label><input id="speed" type="range" min="0.5" max="3" step="0.5" value="1"><output id="speed-value" for="speed">1×</output></div>
+      <div id="progress-announcement" class="sr-only" role="status" aria-live="polite"></div>
+    </section>
+
+    <section class="card calculation">
+      <div class="calculation-heading"><div><p class="eyebrow cyan">FOLLOW THE NUMBERS</p><h2>Inside this step</h2></div><div class="step-location"><span id="current-position">Y[0, 0]</span><span id="step-number">STEP 01 / 09</span></div></div>
+      <div class="calculation-content">
+        <div class="dot-product">
+          <div class="mini-block"><span>INPUT PATCH</span><div id="patch-grid" class="mini-grid patch-grid"></div></div>
+          <span class="math-operator">×</span>
+          <div class="mini-block"><span>KERNEL</span><div id="weight-grid" class="mini-grid weight-grid"></div></div>
+          <span class="math-operator">=</span>
+          <div class="mini-block"><span>ELEMENT-WISE</span><div id="product-grid" class="mini-grid product-grid"></div></div>
+        </div>
+        <div class="summation"><span class="sum-label">Σ &nbsp; SUM OF 9 PRODUCTS</span><div id="sum-expression" class="sum-expression"></div><div class="sum-result"><strong id="current-sum">−4</strong><span id="sum-destination">Preview → Y[0, 0]</span></div></div>
+      </div>
+      <div id="multiplication-terms" class="multiplication-terms" aria-label="Nine element-wise multiplication equations"></div>
+    </section>
+
+    <footer class="formula-footer">
+      <div><span class="formula-label">THE RULE</span><code>Y[i,j] = Σₘ Σₙ X[i+m,j+n] · K[m,n]</code><small id="stride-formula">With stride/padding: X_pad[i·1+m, j·1+n] · K[m,n], m,n = 0…2</small></div>
+      <div class="size-rule"><span>OUTPUT SIZE</span><code id="size-formula">⌊(5 + 2·0 − 3) / 1⌋ + 1 = 3</code><small>← / → 单步 · Space 播放 / 暂停 · R 重置</small></div>
+    </footer>
+    <details id="qa-panel" hidden><summary>Browser self-test report</summary><pre id="qa-report"></pre></details>
+  </main>
+</body>
+</html>
+

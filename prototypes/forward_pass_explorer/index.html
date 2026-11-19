@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><link rel="icon" type="image/svg+xml" href="/digitvision/favicon.svg">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080D18">
+<title>Forward Pass Explorer · DigitVision</title>
+<link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="information_architecture.css"><link rel="stylesheet" href="global_engine.css"><link rel="stylesheet" href="advanced_spatial.css?v=122">
+<script src="data/forward_pass_data.js" defer></script><script src="pool_comparison.js" defer></script><script src="spatial_layers.js" defer></script><script src="advanced_spatial.js?v=122" defer></script><script src="unified_spatial.js?v=122" defer></script><script src="multi_channel.js" defer></script><script src="view_controller.js" defer></script><script src="stage_registry.js" defer></script><script src="global_engine.js" defer></script><script src="spatial_sync.js?v=122" defer></script><script src="app.js?v=122" defer></script>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="index.html"><span class="brand-symbol">DV</span><strong>DigitVision</strong></a>
+  <span class="page-name">Forward Pass Explorer</span>
+  <nav aria-label="Data modes"><span class="mode active">Real Model Mode</span><a class="mode" href="../convolution_playground/index.html" target="_blank" rel="noopener" title="人工教学矩阵，与真实模型数据分开">Learning Mode ↗</a></nav>
+  <span class="local-badge"><i></i> OFFLINE LAB</span>
+</header>
+<main>
+  <section class="intro">
+    <div><p class="eyebrow">NEURAL SCIENCE LAB / EXPERIMENT 06</p><h1>A digit’s <span>journey through a CNN.</span></h1><p class="subtitle">沿着真实数据，探索每一层内部的计算。Python 完成推理，浏览器回放真实记录。</p></div>
+    <div class="sample-picker"><canvas id="sample-preview" width="64" height="64" aria-label="Selected MNIST sample"></canvas><div><label for="sample">MNIST TEST SAMPLE</label><select id="sample"></select><div class="sample-labels">True <strong id="true-label">7</strong><span>→</span>Prediction <strong id="predicted-label">7</strong></div></div></div>
+  </section>
+
+  <section class="network-shell" aria-label="Global forward pass">
+    <div class="section-line"><span>THE FORWARD PASS</span><span id="network-progress">Input / 10 layers</span></div>
+    <div id="pipeline" class="pipeline" role="navigation" aria-label="CNN layers"></div>
+    <div class="global-controls">
+      <div class="button-group"><button id="global-play" class="button primary">▶ Play All</button><button id="global-pause" class="button" disabled>Ⅱ Pause</button><button id="global-previous" class="button">← Previous Layer</button><button id="global-next" class="button">Next Layer →</button><button id="global-restart" class="button ghost">↺ Restart</button></div>
+      <div class="speed"><label for="global-speed">Global speed</label><input id="global-speed" type="range" min="0.5" max="8" step="0.5" value="1"><output id="global-speed-label">1×</output></div>
+      <span id="global-status" class="status">IDLE</span>
+    </div>
+  </section>
+
+  <section id="stage" class="stage">
+    <div class="stage-heading"><div><p id="stage-category" class="eyebrow">01 / INPUT</p><h2 id="stage-title">From image to tensor</h2><p id="stage-description">真实 MNIST 图像，保留原始 [0,1] 像素值。</p></div><div class="stage-shape"><span id="stage-input-shape"></span><b>→</b><strong id="stage-output-shape"></strong></div></div>
+    <section id="multi-channel-overview" class="mc-overview" hidden aria-label="Parallel tensor channel overview"></section>
+    <div class="selection-bar">
+      <label id="channel-control">Output channel <select id="channel"></select></label>
+      <label id="input-channel-control">Input channel <select id="input-channel"></select></label>
+      <label id="row-control">Row <input id="row" type="number" min="0" value="0"></label>
+      <label id="col-control">Column <input id="col" type="number" min="0" value="0"></label>
+      <label id="neuron-control">Neuron / digit <input id="neuron" type="number" min="0" value="0"></label>
+      <label id="flat-control">Vector index <input id="flat-index" type="number" min="0" max="1599" value="0"></label>
+      <span class="real-indicator"><i></i> Actual weights · actual activations</span>
+    </div>
+    <div id="layer-animation-controls" class="layer-animation-controls" hidden><label>Animation mode <select id="layer-animation-mode"><option value="fast">Fast Overview · 2–4 s</option><option value="detailed">Detailed · 10–20 s</option><option value="step">Step · 手动比较</option></select></label><span id="layer-animation-duration"></span><span id="layer-animation-state"></span><p>当前通道的独立运算视图 · 32 个通道可并行处理 · 动画仅回放真实记录，不代表推理耗时。</p></div>
+    <div id="conv1-mode-controls" class="conv1-mode-controls" hidden><label>Animation mode <select id="conv1-mode"><option value="fast">Fast Overview · 2–4 s</option><option value="detailed">Detailed · 10–20 s</option><option value="step">Step · 手动检查</option></select></label><span id="conv1-duration"></span><span id="conv1-inspection-status"></span><p>仅回放真实记录，不模拟 CNN 实际耗时；32 个输出通道可并行计算，不是逐通道串行扫描。</p></div>
+    <div class="operation-toolbar">    <div class="local-controls"><div class="button-group"><button id="local-play" class="button secondary">▶ Play</button><button id="local-pause" class="button" disabled>Ⅱ Pause</button><button id="local-previous" class="button">← Previous Step</button><button id="local-next" class="button">Next Step →</button><button id="local-restart" class="button ghost">↺ Restart</button></div><div class="speed"><label for="local-speed">Local speed</label><input id="local-speed" type="range" min="0.5" max="8" step="0.5" value="1"><output id="local-speed-label">1×</output></div></div>
+    <div class="timeline"><div id="local-progress"></div></div>
+<div class="local-step"><span id="local-position">STEP 0</span><span id="local-status" class="status">IDLE</span></div></div>
+    <div class="stage-grid">
+      <article class="tensor-pane"><div class="pane-heading"><h3 id="source-title">Input image</h3><button class="icon-button" id="zoom-source" aria-label="Enlarge source feature map">↗</button></div><div class="canvas-shell"><canvas id="source-canvas" width="360" height="360" aria-label="Source tensor; click to select a spatial location"></canvas><span id="receptive-window" aria-hidden="true" hidden></span></div><p id="source-caption" class="tensor-caption"></p><canvas id="input-bank" class="bank-canvas" width="480" height="240" aria-label="32 real input feature maps, click a channel" hidden></canvas></article>
+      <article class="operation-pane"><p id="operation-label" class="eyebrow cyan">LOCAL COMPUTATION</p><div id="operation-content"></div><canvas id="contributions" width="600" height="170" aria-label="Signed channel or group contributions; click to inspect" hidden></canvas><canvas id="kernel-bank" class="bank-canvas" width="480" height="240" aria-label="All 32 real 3 by 3 kernels for this Conv2 output channel" hidden></canvas><div id="operation-note" class="operation-note"></div></article>
+      <article class="tensor-pane"><div class="pane-heading"><h3 id="target-title">Recorded output</h3><button class="icon-button" id="zoom-target" aria-label="Enlarge output feature map">↗</button></div><canvas id="target-canvas" width="360" height="360" aria-label="Output tensor; click to select a spatial location"></canvas><div id="probability-chart" class="probability-chart" hidden></div><p id="target-caption" class="tensor-caption"></p></article>
+    </div>
+    <div id="channel-strip-wrap" class="channel-strip-wrap"><div class="section-line"><span id="channel-strip-title">FEATURE MAPS</span><span>Click a channel to inspect</span></div><div id="channel-strip" class="channel-strip"></div></div>
+  </section>
+
+  <section class="inspector" aria-label="Local operation inspector">
+    <div class="inspector-heading"><div><span class="eyebrow">OPERATION INSPECTOR</span><h2 id="local-heading">Pixel → Tensor</h2></div></div>
+    <div class="inspector-grid"><div><p class="field-label">EXACT COMPUTATION</p><div id="conv1-input-detail" class="conv1-input-detail"></div><div id="term-grid" class="term-grid"></div><p id="calculation-formula" class="calculation-formula"></p></div><div class="numeric-result"><span id="result-label">RECORDED VALUE</span><strong id="result-value">0</strong><p id="result-detail"></p><div id="consistency" class="consistency">Float tolerance: abs 1e−4 + rel 1e−5</div></div></div>
+  </section>
+
+  <footer><span>DigitCNN · 225,034 parameters · eval mode · Dropout is identity</span><details><summary>Data provenance & display conventions</summary><p id="provenance"></p><p>颜色按当前张量范围缩放，仅改变显示，不改变数值。原始卷积与 ReLU 节点分开；卷积面板中的 ReLU 是下一节点的结果预览。分组连接线表示真实贡献之和，不代表单个权重。</p><p>Space：全局播放/暂停；← / →：局部单步；R：全局重置。使用表单时不会拦截这些快捷键。</p></details></footer>
+  <section id="qa-panel" hidden><h2>Offline browser verification</h2><pre id="qa-report"></pre></section>
+  <p id="app-error" role="alert" hidden></p>
+</main>
+<dialog id="zoom-dialog"><div class="zoom-heading"><h2 id="zoom-title">Feature map</h2><button id="zoom-close" class="button">Close ×</button></div><canvas id="zoom-canvas" width="560" height="560"></canvas><p id="zoom-caption"></p></dialog>
+</body></html>
+
+
+

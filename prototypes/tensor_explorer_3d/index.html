@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN"><head><link rel="icon" type="image/svg+xml" href="/digitvision/favicon.svg"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DigitVision · 3D Tensor Explorer</title><link rel="stylesheet" href="./styles.css?v=12"><link rel="stylesheet" href="./animation.css"><link rel="stylesheet" href="./processing.css"></head>
+<body>
+<header><div class="brand"><span class="brand-mark">DV</span><div><strong>DigitVision</strong><small>NEURAL SCIENCE LAB / 3D TENSOR EXPLORER</small></div></div><div class="model-note">DigitCNN · real PyTorch export · offline</div></header>
+<main>
+<section class="intro"><div><p class="eyebrow">TENSOR STRUCTURE</p><h1>看见通道，也看见数值。</h1><p>每张平面是一张独立 Feature Map。X 是列，Y 是行，Z 是通道；颜色只编码响应，不修改真实 Tensor。</p></div><div id="shape-chip">[1,32,26,26]</div></section>
+<section class="toolbar" aria-label="Tensor controls">
+<label>样本<select id="sample"></select></label><label>网络层<select id="layer"><option value="conv1">Conv1 · 1 → 32</option><option value="conv2">Conv2 · 32 → 64</option><option value="pool1">Pool1 · 26 → 13</option><option value="pool2">Pool2 · 11 → 5</option><option value="relu1">ReLU1 · 26 × 26</option><option value="relu2">ReLU2 · 11 × 11</option><option value="flatten">Flatten · 64×5×5 → 1600</option></select></label>
+<label>响应<select id="activation"><option value="pre">Pre-ReLU</option><option value="relu">Post-ReLU</option></select></label>
+<label>色标<select id="scale"><option value="global">Global Scale</option><option value="channel">Per-Channel Scale</option></select></label>
+<div class="view-tabs" role="group" aria-label="View mode"><button data-view="split" class="active">Split</button><button data-view="3d">3D</button><button data-view="2d">2D Atlas</button></div>
+</section>
+<section class="workspace" id="workspace" data-view="split">
+<div class="scene-panel"><div class="panel-heading"><div><span class="eyebrow">SPATIAL TENSOR</span><h2>3D Feature Map Stack</h2></div><span id="scene-status">初始化中</span></div><div id="scene"></div><div class="scene-hud"><span>拖动旋转 · 滚轮缩放 · 右键平移 · 点击平面选择</span><div class="camera-buttons"><button data-camera="front">Front</button><button data-camera="top">Top</button><button data-camera="side">Side</button><button data-camera="three-quarter">3/4</button><button id="reset-camera">Reset</button></div></div>
+<div class="animation-bar" aria-label="Tensor animation controls"><label>动画<select id="anim-mode"><option value="assembly">Tensor Assembly · 堆叠组装</option><option value="scan">Channel Scanning · 通道扫描</option><option value="tracking">Spatial Tracking · 同坐标追踪</option><option value="separation">Channel Separation · 通道分离</option><option value="flow">Tensor Data Flow · 观察方向</option><option value="spatial">Spatial Processing Scan · 空间窗口</option><option value="flatten">Flatten · 元素到向量</option></select></label><div class="animation-buttons"><button id="anim-play">Play / Resume</button><button id="anim-pause">Pause</button><button id="anim-restart">Restart</button><button id="anim-direction">正向 0→末</button><button id="anim-return">平滑归位</button></div><label>速度 <output id="anim-speed-label">1×</output><input id="anim-speed" type="range" min="0.25" max="2" step="0.25" value="1"></label><div class="animation-progress"><div id="anim-progress"></div></div><span id="anim-status">IDLE · 0%</span><p id="anim-note">真实通道平面逐层组装；位置移动仅用于观察 Tensor 结构。</p></div></div>
+<div class="analysis-panel"><div class="panel-heading"><div><span class="eyebrow">REAL VALUES</span><h2>Tensor Inspector</h2></div><span id="tensor-key"></span></div>
+<div class="inspector-grid"><div><small>Channel</small><strong id="channel-label">—</strong></div><div><small>Position</small><strong id="position-label">—</strong></div><div><small>Value</small><strong id="value-label">—</strong></div></div>
+<div class="stats"><span id="min-label"></span><span id="max-label"></span><span id="mean-label"></span></div>
+<div class="coordinates"><label>Channel<select id="channel"></select></label><label>Row<input id="row" type="number" min="0" value="12"></label><label>Column<input id="col" type="number" min="0" value="12"></label></div>
+<div id="stack-side" class="side-tabs"><button data-side="input">32 input channels</button><button data-side="output" class="active">64 output channels</button></div>
+<div class="map-title"><span>Selected 2D Feature Map</span><span id="scale-note">统一色标</span></div><canvas id="detail-map" width="312" height="312" aria-label="选中通道的二维真实特征图"></canvas>
+<div class="legend"><span><i class="negative"></i>负响应</span><span><i class="zero"></i>零</span><span><i class="positive"></i>正响应</span></div>
+<div class="response-panel" id="response-panel" hidden><div class="map-title"><span>同坐标跨通道真实响应</span><span id="response-count">0 / 32</span></div><canvas id="response-chart" width="312" height="124" aria-label="所有通道在当前坐标的真实响应曲线"></canvas></div>
+<div class="response-panel" id="processing-panel" hidden><div class="map-title"><span>空间处理游标</span><span id="processing-step"></span></div><p id="processing-coordinates"></p><div id="processing-candidates" class="processing-candidates" hidden><span></span><span></span><span></span><span></span></div><p id="processing-stage"></p><p id="processing-math"></p></div>
+</div>
+</section>
+<section class="atlas-section" id="atlas-section"><div class="panel-heading"><div><span class="eyebrow">ALL CHANNELS</span><h2>2D Channel Atlas</h2></div><span>点击缩略图选择通道 · 所有通道同一坐标已标记</span></div><canvas id="atlas" width="896" height="480" aria-label="全部通道二维总览"></canvas></section>
+<section class="navigation"><div><span class="eyebrow">CHANNEL NAVIGATION</span><h2 id="navigation-title">32 channels</h2></div><div id="channel-nav" class="channel-nav"></div></section>
+<section class="conv2-panel" id="flatten-panel" hidden><div class="panel-heading"><div><span class="eyebrow">NCHW → VECTOR</span><h2>真实元素身份映射</h2></div><span id="flatten-label"></span></div><canvas id="flatten-canvas" width="800" height="145" style="display:block;width:100%;height:auto;background:#0b1728" aria-label="选中二维元素移动到一维向量索引"></canvas><p>每个元素保留 C、Row、Column 身份；下方连续条带保留已访问的真实向量值。</p></section>
+<section class="conv2-panel" id="conv2-panel" hidden><div class="panel-heading"><div><span class="eyebrow">32 → 64 · REAL CONVOLUTION</span><h2>32 路输入，共同生成一个输出通道</h2></div><button id="demo-filters">播放 64 Filter 教学顺序</button></div><p>每个输出 Filter 都读取全部 32 个输入通道，使用不同的训练权重。64 张输出图在真实 CNN 中并行计算；下方依次展示只用于教学。</p><div class="fusion-summary"><span id="filter-label"></span><span id="sum-label"></span><span id="bias-label"></span><strong id="output-label"></strong></div><div class="conv2-detail"><div><h3>选中输入通道的 3×3 权重</h3><div id="kernel-grid" class="kernel-grid"></div><h3>对应 3×3 输入区域</h3><div id="patch-grid" class="kernel-grid"></div></div><div><h3>32 个真实局部贡献</h3><div id="contribution-list" class="contribution-list"></div></div></div><p id="conv2-check"></p></section>
+<footer><span>真实导出 · 不运行推理 · 无外部运行时请求</span><label><input type="checkbox" id="low-power"> 低性能模式</label><span id="fps">FPS —</span></footer>
+</main>
+<script src="../forward_pass_explorer/data/forward_pass_data.js"></script>
+<script src="../forward_pass_explorer/spatial_sync.js?v=122"></script><script type="module" src="./app.js?v=122"></script>
+</body></html>
+
+
+
+
+

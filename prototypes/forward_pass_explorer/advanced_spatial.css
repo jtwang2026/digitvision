@@ -1,0 +1,11 @@
+.advanced-spatial{display:grid;gap:11px;align-content:start;min-height:150px}
+.advanced-title{font-size:15px;font-weight:700;color:#cfeaf1}
+.advanced-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;color:#b9cbe0;font:12px Consolas,monospace}
+.advanced-candidate{padding:8px 6px;background:#14273d;border-radius:5px;text-align:center}
+.advanced-candidate.winner{color:#34d399;box-shadow:inset 0 0 0 1px #34d399}
+.advanced-summary{color:#f6c76b;font:13px Consolas,monospace;line-height:1.45}
+.advanced-phase{color:#80d9e1;font:12px Consolas,monospace;line-height:1.45}
+body[data-layer="conv2"] #input-bank{display:block;max-height:240px}
+body[data-explorer-layer="conv2"] #main-view #main-fusion{display:none}
+body[data-explorer-layer="conv2"] #main-view .operation-pane{display:block;grid-column:2;grid-row:1;min-width:0}
+body[data-explorer-layer="conv2"] #main-view #contributions{display:block!important;width:100%;height:auto;max-height:150px}

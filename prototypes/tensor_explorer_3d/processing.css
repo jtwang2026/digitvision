@@ -1,0 +1,11 @@
+#processing-panel{color:#a8c7d9;font:12px/1.55 Consolas,monospace}
+#processing-panel p{margin:7px 0;overflow-wrap:anywhere}
+#processing-stage{color:#f6c76b;min-height:1.5em}
+.processing-candidates{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;margin:9px 0}
+.processing-candidates[hidden],.processing-candidates span[hidden]{display:none}
+.processing-candidates span{background:#172c41;border:1px solid #36546c;border-radius:4px;padding:6px;color:#c4d8e8}
+.processing-candidates span.relu-negative,.processing-candidates span.relu-positive{grid-column:1/-1;transition:opacity .08s linear}
+.processing-candidates span.relu-negative{border-color:#fb7185;color:#ff9aaa}.processing-candidates span.relu-positive{border-color:#5ee1e8;color:#a9f7fb}
+.processing-candidates span.comparing{border-color:#5ee1e8;color:#a9f7fb}
+.processing-candidates span.winner{border-color:#34d399;color:#80efbe}
+.processing-candidates span.eliminated{opacity:.4}
