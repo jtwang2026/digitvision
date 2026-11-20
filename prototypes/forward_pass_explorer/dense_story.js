@@ -22,7 +22,7 @@ function create(host){
    for(let k=0;k<32;k++){const y=67+k*7.6,active=k<n,current=k===n&&p<.76;line(292,y,558,190,op.contributions[k]<0?'#fb7185':'#5ee1e8',active||current?.85:.13,current?(p/.76*32)%1:null);}
    label('32 组 × 50 个真实乘积',285,45,'#a78bfa',15);
    ctx.fillStyle='#182d43';ctx.strokeStyle='#5ee1e8';ctx.beginPath();ctx.arc(585,190,31,0,Math.PI*2);ctx.fill();ctx.stroke();label('Σ',575,198,'#5ee1e8',25);
-   label('累计 '+n+'/32 组',480,265);label('Σ = '+sum.toFixed(5),480,288,'#e3edf9',16);
+   label('累计 '+n+'/32 组',480,265);label('Σ = '+sum.toFixed(5),480,288,'#e3edf9',16);label('此处示范神经元 '+S.selection.neuron+'；128 个神经元各有独立权重',310,341,'#91a8c1',12);
    line(617,190,750,190,biased?'#f6c76b':'#58708b',1,p>=.76&&p<.88?(p-.76)/.12:null);label('+ bias',630,146,biased?'#f6c76b':'#58708b');label(op.bias.toFixed(5),625,169);
    label('ReLU',725,153,p>=.88?'#34d399':'#58708b',17);label(p>=.88?Math.max(0,op.raw).toFixed(5):'max(0, z)',715,224,'#34d399',15);
    grid(S.sample.tensors.fc1_relu.values,839,103,16,14,drop?1:clamp((p-.86)/.14),S.selection.neuron);label('128 个真实隐藏激活',835,48,'#34d399',16);

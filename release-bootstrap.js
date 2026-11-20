@@ -13,9 +13,10 @@
   if(data?.samples?.length!==3||!data.weights)throw Error('真实数据不完整');window.DIGITVISION_DATA=data;
   const base='prototypes/forward_pass_explorer/';
   const list=mode==='2d'?['pool_comparison.js','spatial_layers.js','advanced_spatial.js','unified_spatial.js','multi_channel.js','view_controller.js','stage_registry.js','global_engine.js','spatial_sync.js','dense_story.js','app.js']:[];
-  for(let i=0;i<list.length;i++){message.textContent='正在启动动画模块 '+(i+1)+' / '+list.length;await script(base+list[i]+'?release=20261120b');}
-  if(mode==='3d'){await script(base+'spatial_sync.js?release=20261120b');await script('prototypes/tensor_explorer_3d/app.js?release=20261120b',true);}
+  for(let i=0;i<list.length;i++){message.textContent='正在启动动画模块 '+(i+1)+' / '+list.length;await script(base+list[i]+'?release=20261120c');}
+  if(mode==='3d'){await script(base+'spatial_sync.js?release=20261120c');await script('prototypes/tensor_explorer_3d/app.js?release=20261120c',true);}
   if(mode==='2d'?!window.ForwardExplorer:!window.TensorExplorer)throw Error('动画初始化失败，请重新加载；若仍失败请检查浏览器控制台。');
   cover.remove();document.documentElement.dataset.releaseReady='true';
  }catch(e){message.textContent='加载未完成：'+e.message;bar.remove();const button=cover.querySelector('button');button.hidden=false;button.onclick=()=>location.reload();document.documentElement.dataset.releaseReady='failed';console.error('DigitVision startup:',e);}
 })();
+
