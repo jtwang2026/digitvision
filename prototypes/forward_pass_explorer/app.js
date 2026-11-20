@@ -155,6 +155,7 @@ function isStepMode(){return S.current.key==="conv1"?convVisual.mode==="step":la
 function queueSpatialFrame(callback){if(new URLSearchParams(location.search).get("selftest")!=="1")convRAF=requestAnimationFrame(callback);}
 const multiChannel=root.DigitVisionMultiChannel.create({S,DATA,fmt:(...args)=>fmt(...args),convAt,conv1ScanPoint,playback:()=>({playing:S.globalStatus==="PLAYING"||S.localStatus==="PLAYING",animating:layerAnim.handles(S.current.key)&&(layerAnim.state.inspectPlaying||layerAnim.state.transferring),position:S.current.key==="conv1"?convVisual.position:layerAnim.handles(S.current.key)?layerAnim.state.position:S.local}),selectPosition:(row,col)=>{pauseAll();S.selection.row=row;S.selection.col=col;selectionChanged();},selectChannel:(channel,kind)=>{if(kind==="input"){pauseAll();S.selection.input=channel;}else{S.selection.out=channel;if(layerAnim.handles(S.current.key))layerAnim.parallelChannel();}renderAll();}});
 informationView=root.DigitVisionViews.create({S,invalidate:()=>layerAnim.invalidateGeometry(),refreshParallel:()=>multiChannel.update(),render:()=>renderDynamic()});
+const denseStory=root.DigitVisionDenseStory.create({S,DATA,denseAt});
 const fmt=(value,digits=5)=>{if(value===0||Object.is(value,-0))return "0";return Number(value.toPrecision(digits)).toString().replace("-","−");};
 const shape=t=>"["+t.shape.join(", ")+"]";
 function stopClock(){clearTimeout(clock);clock=0;cancelAnimationFrame(convRAF);convRAF=0;convVisual.last=null;layerAnim.state.last=null;}
@@ -466,6 +467,7 @@ function renderConv1(){
 }
 
 function renderDynamic(){
+ if(["fc1","output"].includes(S.current.key))denseStory.render(S.current.key==="fc1"?"S09":S.local>=12?"S13":S.local>=11?"S12":"S11",S.current.key==="fc1"?S.local/S.limit:S.local>=11?1:S.local/10);else denseStory.render("",0);
  if(S.current.key!=="pool2"&&$("advanced-pool-flight"))$("advanced-pool-flight").hidden=true;
  informationView?.update();multiChannel.update();
  if(layerAnim.handles(S.current.key)){layerAnim.render();return;}
@@ -686,6 +688,7 @@ const globalEngine=root.DigitVisionGlobalEngine.create({S,DATA,view:()=>informat
  phase:(stage,progress,localElapsed,playbackState)=>{const max=S.limit,next=stage.stageId==="S12"?11:stage.stageId==="S13"?12:stage.stageId==="S10"?max:Math.min(max,Math.floor(progress*max));S.localStatus=playbackState==="PLAYING"?"PLAYING":playbackState==="COMPLETED"?"COMPLETED":"PAUSED";if(stage.stageId==="S02"){convVisual.position=progress*676;convVisual.fraction=convVisual.position%1;convVisual.last=null;}
   if(layerAnim.handles(S.current.key)){layerAnim.state.position=progress*max;layerAnim.state.fraction=layerAnim.state.position%1;layerAnim.state.last=null;}
   if(S.local!==next){S.local=next;if(S.current.key==="flatten")S.selection.flatIndex=Math.min(1599,Math.floor(progress*1600));if(S.current.key==="conv2")S.selection.input=Math.min(31,Math.floor(progress*32));renderDynamic();}
+  denseStory.render(stage.stageId,progress);
   if(stage.stageId==="S10")$("operation-note").textContent="Inference Mode · Dropout(p=0.5) 为 Identity；128 个真实值保持不变。";
   if(stage.stageId==="S11"||stage.stageId==="S12"||stage.stageId==="S13"){$("operation-note").textContent=stage.stageName+" · "+stage.inputTensorKey+" → "+stage.outputTensorKey+" · 真实模型导出记录";}
  }});
@@ -794,6 +797,7 @@ if(params.get("selftest")==="1")runBrowserChecks().then(()=>{
  }catch(e){document.documentElement.dataset.qaStatus="failed";$("qa-report").textContent=JSON.stringify({passed:false,error:e.message});}
 });
 })(typeof window!=="undefined"?window:globalThis);
+
 
 
 

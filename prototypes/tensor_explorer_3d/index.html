@@ -1,5 +1,6 @@
 <!doctype html>
-<html lang="zh-CN"><head><link rel="icon" type="image/svg+xml" href="/digitvision/favicon.svg"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DigitVision · 3D Tensor Explorer</title><link rel="stylesheet" href="./styles.css?v=12"><link rel="stylesheet" href="./animation.css"><link rel="stylesheet" href="./processing.css"></head>
+<html lang="zh-CN"><head><link rel="icon" type="image/svg+xml" href="/digitvision/favicon.svg"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DigitVision · 3D Tensor Explorer</title><link rel="stylesheet" href="./styles.css?v=12"><link rel="stylesheet" href="./animation.css"><link rel="stylesheet" href="./processing.css"><script src="../../release-bootstrap.js?release=20261120b" data-explorer="3d" defer></script>
+</head>
 <body>
 <header><div class="brand"><span class="brand-mark">DV</span><div><strong>DigitVision</strong><small>NEURAL SCIENCE LAB / 3D TENSOR EXPLORER</small></div></div><div class="model-note">DigitCNN · real PyTorch export · offline</div></header>
 <main>
@@ -30,8 +31,8 @@
 <section class="conv2-panel" id="conv2-panel" hidden><div class="panel-heading"><div><span class="eyebrow">32 → 64 · REAL CONVOLUTION</span><h2>32 路输入，共同生成一个输出通道</h2></div><button id="demo-filters">播放 64 Filter 教学顺序</button></div><p>每个输出 Filter 都读取全部 32 个输入通道，使用不同的训练权重。64 张输出图在真实 CNN 中并行计算；下方依次展示只用于教学。</p><div class="fusion-summary"><span id="filter-label"></span><span id="sum-label"></span><span id="bias-label"></span><strong id="output-label"></strong></div><div class="conv2-detail"><div><h3>选中输入通道的 3×3 权重</h3><div id="kernel-grid" class="kernel-grid"></div><h3>对应 3×3 输入区域</h3><div id="patch-grid" class="kernel-grid"></div></div><div><h3>32 个真实局部贡献</h3><div id="contribution-list" class="contribution-list"></div></div></div><p id="conv2-check"></p></section>
 <footer><span>真实导出 · 不运行推理 · 无外部运行时请求</span><label><input type="checkbox" id="low-power"> 低性能模式</label><span id="fps">FPS —</span></footer>
 </main>
-<script src="../forward_pass_explorer/data/forward_pass_data.js"></script>
-<script src="../forward_pass_explorer/spatial_sync.js?v=122"></script><script type="module" src="./app.js?v=122"></script>
+
+
 </body></html>
 
 
